@@ -81,10 +81,12 @@ TEMPLATES = {
 st.set_page_config(page_title="Mic to Word", layout="centered")
 st.title("🎤 Speak & Auto-Fill Word Document")
 
-use_mic = st.checkbox("Use microphone instead of uploading audio")
 
 audio_path = None
+use_mic = None
 
+if not os.environ.get("STREAMLIT_CLOUD"):
+    use_mic = st.checkbox("Use microphone instead of uploading audio")
 if use_mic:
     duration = st.slider("Recording duration (seconds)", 3, 15, 5)
     if st.button("🎙️ Start Recording"):
