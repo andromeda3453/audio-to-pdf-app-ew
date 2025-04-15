@@ -1,47 +1,58 @@
-import os
+# from modules.audio_processor import transcribe_audio
+# from modules.nlp_extractor import extract_data
+# from pdfrw import PdfReader, PdfWriter, PdfDict
+
+# def fill_pdf(input_pdf_path, output_pdf_path, data):
+#     template_pdf = PdfReader(input_pdf_path)
+#     template_pdf.Root.AcroForm.update(PdfDict(NeedAppearances=PdfDict(indirect=True)))
+#     for page in template_pdf.pages:
+#         annotations = page.Annots
+#         if annotations:
+#             for annot in annotations:
+#                 if annot.Subtype == '/Widget' and annot.T:
+#                     key = annot.T[1:-1]
+#                     if key in data:
+#                         annot.V = f"({data[key]})"
+#                         annot.AP = ''
+#                         annot.AS = ''
+#     PdfWriter().write(output_pdf_path, template_pdf)
+
+# # === RUNNING THE PIPELINE ===
+# audio_path = "sample_audio.mp3"
+# pdf_template = "sample_fillable_form.pdf"
+# output_path = "filled_sample_output.pdf"
+
+# transcript = transcribe_audio(audio_path)
+# print("Transcript:", transcript)
+
+# data = extract_data(transcript)
+# print("Extracted:", data)
+
+# fill_pdf(pdf_template, output_path, data)
+# print(f"✅ PDF filled and saved to: {output_path}")
+
 
 from modules.audio_processor import transcribe_audio
 from modules.nlp_extractor import extract_data
 from modules.template_matcher import match_template
-from modules.pdf_filler import fill_pdf
+from modules.word_filler import fill_word_template  # ← NEW
 
-# Hard-coded template info
-TEMPLATES = {
-    "invoice": {
-        "path": "templates/sample_fillable_form.pdf",
-        "description": "Invoice for service payment"
-    },
-    "agreement": {
-        "path": "templates/agreement_template.pdf",
-        "description": "Service level agreement form"
-    }
-    # Add more if needed
-}
+# Assume your audio and template paths are already defined
+audio_path = "sample_audio.mp3"
+template_path = "fitting_followup_template.docx"
+output_path = "filled_followup.docx"
 
-def process_audio(audio_path: str):
-    # 1) Transcribe
-    transcript = transcribe_audio(audio_path)
-    print("\n>> Transcript:\n", transcript)
+# 1. Transcribe audio
+transcript = transcribe_audio(audio_path)
 
-    # 2) Extract Data
-    extracted = extract_data(transcript)
-    print("\n>> Extracted Data:\n", extracted)
+# 2. Extract text fields and checkbox states
+extracted, checkboxes = extract_data(transcript)  # Make sure this returns two dicts
 
-    # 3) Pick Template
-    chosen = match_template(transcript, TEMPLATES)
-    print("\n>> Matched Template:\n", chosen)
+# 3. Merge and fill Word template
+data_to_fill = {**extracted, **checkboxes}
+fill_word_template(template_path, output_path, data_to_fill)
 
-    # 4) Fill PDF
-    template_path = TEMPLATES[chosen]["path"]
-    base_name = os.path.splitext(os.path.basename(audio_path))[0]
-    output_path = f"output/filled_{base_name}.pdf"
-    fill_pdf(template_path, output_path, extracted)
-    print(f"\n>> PDF created at: {output_path}\n")
+print(f"\n✅ Done! Word document generated: {output_path}")
 
-def main():
-    os.makedirs("output", exist_ok=True)
-    audio_path = "audio/sample_audio.mp3"
-    process_audio(audio_path)
 
-if __name__ == "__main__":
-    main()
+

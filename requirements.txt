@@ -11,4 +11,3 @@ spacy
 pdfrw
 sounddevice
 scipy
-
