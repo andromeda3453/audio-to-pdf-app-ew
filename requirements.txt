@@ -12,3 +12,4 @@ pdfrw
 sounddevice
 scipy
 docx
+python-docx
