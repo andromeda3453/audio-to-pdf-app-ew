@@ -64,7 +64,6 @@
 import os
 import shutil
 import streamlit as st
-import sounddevice as sd
 from scipy.io.wavfile import write
 from modules.audio_processor import transcribe_audio
 from modules.nlp_extractor import extract_data
@@ -87,6 +86,7 @@ use_mic = None
 
 if not os.environ.get("STREAMLIT_CLOUD"):
     use_mic = st.checkbox("Use microphone instead of uploading audio")
+    import sounddevice as sd
 if use_mic:
     duration = st.slider("Recording duration (seconds)", 3, 15, 5)
     if st.button("🎙️ Start Recording"):
